@@ -1,11 +1,4 @@
 ﻿using Auxiliary;
-using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Terraria;
 
 namespace Supplier.Models
 {
@@ -48,7 +41,7 @@ namespace Supplier.Models
         }
 
         private int _x;
-        
+
         public int X
         {
             get

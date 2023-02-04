@@ -10,7 +10,7 @@ using static TShockAPI.GetDataHandlers;
 
 namespace Supplier
 {
-    [ApiVersion(2,1)]
+    [ApiVersion(2, 1)]
     public class Supplier : TerrariaPlugin
     {
         #region Plugin Metadata
@@ -35,7 +35,7 @@ namespace Supplier
         {
             // build command modules
             await _fx.BuildModulesAsync(typeof(Supplier).Assembly);
-            
+
             //register hooks
             ChestOpen += OnChestOpen;
             ChestItemChange += OnItemChange;
@@ -81,7 +81,7 @@ namespace Supplier
 
                 // set the chest slot to our new temp item
                 chest.item[i] = tempItem;
-                
+
                 // send a packet to the user, updating the chest slot in real time
                 TSPlayer.All.SendData(PacketTypes.ChestItem, "", e.ID, i, tempItem.stack, tempItem.prefix, tempItem.type);
 
@@ -150,14 +150,14 @@ namespace Supplier
                         x.Items = Items;
                     }));
                 }
-                catch(Exception ex)  // inform the player if for some reason it doesn't work (and send error to console)
+                catch (Exception ex)  // inform the player if for some reason it doesn't work (and send error to console)
                 {
                     Console.WriteLine("[SUPPLIER] - SOMETHING WENT WRONG!", ConsoleColor.Red);
                     Console.WriteLine(ex);
                     player.SendErrorMessage("Something went wrong! Chest could not be made infinite!");
                     return;
                 }
-            
+
                 // success!
                 player.SendSuccessMessage("Chest saved as infinite.");
             }
