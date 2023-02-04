@@ -23,6 +23,18 @@ namespace Supplier.Models
             }
         }
 
+        private string _world;
+        public string World
+        {
+            get
+              => _world;
+            set
+            {
+                _ = this.SaveAsync(x => x.World, value);
+                _world = value;
+            }
+        }
+
         private List<ChestItem> _items = new List<ChestItem>();
         public List<ChestItem> Items
         {
