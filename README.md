@@ -3,6 +3,12 @@
 An [InfiniteChests](https://github.com/MarioFoli/InfiniteChestsV3) successor. 
 We do things better, faster, and easier. Supplier allows admins to create infinite chests which restock their items instantly. Simply create a chest, put your items in and use /infchest add. Boom! You're done :)
 
+## ⚠️ Dependencies:
+
+Supplier releases are already bundled with all of the dependencies required **HOWEVER, an active & working MongoDB is required for Auxiliary to function properly,** which Supplier depends on.
+- CSF.Net.TShock
+- Auxiliary
+
 ## So, how is this better than [InfChests V3](https://github.com/MarioFoli/InfiniteChestsV3)?
  - Mobile-crossplay support
  - No more corrupting chests, actual in-game chests are completely untouched
@@ -14,11 +20,6 @@ We do things better, faster, and easier. Supplier allows admins to create infini
  - Low overhead, it's quick, tiny (file size is 16 KB), and has very little impact on performance
  - Actively supported, by me.
 
-## ⚠️ Dependencies:
-
-Supplier releases are already bundled with all of the dependencies required **HOWEVER, an active & working MongoDB is required for Auxiliary to function properly,** which Supplier depends on.
-- CSF.Net.TShock
-- Auxiliary
 
 ## 📜 Commands List:
 
