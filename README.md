@@ -9,7 +9,7 @@ Supplier releases are already bundled with all of the dependencies required **HO
 - CSF.Net.TShock
 - Auxiliary
 
-## So, how is this better than [InfChests V3](https://github.com/MarioFoli/InfiniteChestsV3)?
+## ❔ So, how is this better than [InfChests V3](https://github.com/MarioFoli/InfiniteChestsV3)?
  - Mobile-crossplay support
  - No more corrupting chests, actual in-game chests are completely untouched
     - If the plugin is removed, the chest will continue working, but no longer be infinite
