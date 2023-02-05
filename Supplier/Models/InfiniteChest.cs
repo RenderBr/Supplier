@@ -16,8 +16,8 @@ namespace Supplier.Models
             }
         }
 
-        private string _world;
-        public string World
+        private string? _world;
+        public string? World
         {
             get
               => _world;
