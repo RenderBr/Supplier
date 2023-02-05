@@ -9,6 +9,7 @@ namespace Supplier.Api
     {
         public string? WorldName { get; set; }
 
+        #region Add Chest
         public async void AddChest(Chest chest)
         {
             // add the chest to our database, marking it as infinite
@@ -38,7 +39,10 @@ namespace Supplier.Api
                 x.Items = Items;
             }));
         }
+        #endregion
 
+
+        #region Retrieve Chest
         public async Task<InfiniteChest> RetrieveChest(int _x, int _y)
         {
             // retrieve the chest from the coordinates
@@ -46,10 +50,13 @@ namespace Supplier.Api
             // return the chest
             return entity;
         }
+        #endregion
 
+        #region Remove Chest
         public async void RemoveChest(int _x, int _y)
         {
             StorageProvider.GetMongoCollection<InfiniteChest>("InfiniteChests").Find(x => x.X == _x && x.Y == _y && (x.World == WorldName || string.IsNullOrEmpty(x.World))).First().DeleteAsync();        
         }
+        #endregion
     }
 }
