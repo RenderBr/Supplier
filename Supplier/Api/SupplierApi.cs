@@ -7,6 +7,12 @@ namespace Supplier.Api
 {
     public class SupplierApi
     {
+        public SupplierApi()
+        {
+            StorageProvider.GetMongoCollection<InfiniteChest>("InfiniteChests");
+            Console.WriteLine("SupplierAPI has connected to the database successfully.");
+        }
+
         public string? WorldName { get; set; }
 
         #region Add Chest
