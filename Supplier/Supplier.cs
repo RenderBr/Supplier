@@ -60,30 +60,24 @@ namespace Supplier
         #region Chest Item Change Event
         private async void OnItemChange(object sender, ChestItemEventArgs e) // called when an item within a chest is changed
         {
-            Console.WriteLine("A");
             // get the chest object
             Chest chest = Main.chest[e.ID];
             if (chest == null) // <--- if the chest for whatever reason cannot be found, return
                 return;
-            Console.WriteLine("A");
 
-            Console.WriteLine(chest.x + " " + chest.y + " " + core.WorldName);
             // attempt to retrieve the Infinite Chest from database, based on position and the world name
             InfiniteChest? entity = await core.RetrieveChest(chest.x, chest.y);
             if (entity == null) // <---- this will occur when the chest is NOT an infinite chest, so return
                 return;
-            Console.WriteLine("A");
 
             // if the chest doesn't have a world assigned to it, assign the current world to it
             // (for migrating v1.0 -> 1.1, populates potentially missing data)
             if (string.IsNullOrEmpty(entity.World))
                 entity.World = core.WorldName;
-            Console.WriteLine("A");
 
             // loop through each item slot in the chest
             for (var i = 0; i < entity.Items.Count; i++)
             {
-                Console.WriteLine(entity.Items[i].type);
                 // create a tempItem based on the data WE have collected for each slot
                 Item tempItem = new Item();
                 tempItem.SetDefaults(entity.Items[i].type);
@@ -97,12 +91,9 @@ namespace Supplier
                 TSPlayer.All.SendData(PacketTypes.ChestItem, "", e.ID, i, tempItem.stack, tempItem.prefix, tempItem.type);
 
             }
-            Console.WriteLine("A");
 
             // tell the server that WE have handled this event, letting it know the server does not need to do anything further
             e.Handled = true;
-            Console.WriteLine("A");
-
         }
         #endregion
 
