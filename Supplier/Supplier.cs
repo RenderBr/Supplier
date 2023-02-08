@@ -4,6 +4,7 @@ using CSF.TShock;
 using MongoDB.Driver;
 using Supplier.Api;
 using Supplier.Models;
+using Supplier.Extensions;
 using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
@@ -105,17 +106,21 @@ namespace Supplier
             if (player == null) // <---- if the player was somehow not available, return
                 return;
 
+            var plrState = player.GetPlayerOperationState();
+
             #region Add Infinite Chest
-            if (player.GetData<bool>("addinf")) // <----- if the player just executed /infchest add
+            if (plrState.InfChestAdd || plrState.InfChestAddBulk) // <----- if the player just executed /infchest add or addbulk
             {
                 // find the chest the player opened
                 Chest? chest = Main.chest.FirstOrDefault(x => x.x == e.X && x.y == e.Y, null);
                 if (chest == null) // <----- if the chest is somehow null or not available, return
                     return;
 
-                // set addinf to false
-                // this is done so the user doesn't set any more chests to infinite accidentally
-                player.SetData<bool>("addinf", false);
+                // set addinf to false, unless bulk operation
+                if (!plrState.InfChestAddBulk)
+                {
+                    plrState.InfChestAdd = false;
+                }
 
                 // check if chest already is infinite
                 var entity = await core.RetrieveChest(chest.x,chest.y);
@@ -141,7 +146,7 @@ namespace Supplier
             }
             #endregion
             #region Delete Inf Chest
-            else if (player.GetData<bool>("delinf"))
+            else if (plrState.InfChestDelete)
             {
                 {
                     // retrieve opened chest
@@ -149,7 +154,7 @@ namespace Supplier
                     if (chest == null) // if it is somehow null, return
                         return;
 
-                    player.SetData<bool>("delinf", false); // set delinf to false, to prevent further accidental deletion
+                    plrState.InfChestDelete = false; // set delinf to false, to prevent further accidental deletion
 
                     // check to see if the chest already exists
                     var entity = await IModel.GetAsync(GetRequest.Bson<InfiniteChest>(x => x.X == chest.x && x.Y == chest.y && x.World == core.WorldName));

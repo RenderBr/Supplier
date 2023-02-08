@@ -1,5 +1,6 @@
 ﻿using CSF;
 using CSF.TShock;
+using Supplier.Extensions;
 
 namespace Supplier
 {
@@ -11,19 +12,33 @@ namespace Supplier
         [Description("Command used to manage infinite chest.")]
         public IResult InfChest(string sub = "")
         {
+            var plrState = Context.Player.GetPlayerOperationState();
+
+            // inform player if command is being used while a state is already set
+            if (plrState.InfChestAdd || plrState.InfChestAddBulk || plrState.InfChestDelete && sub != "help")
+            {
+                Info("If an existing chest selection operation is currently unfulfilled, it will be overriden with the new request.");
+            }
+
             // switch for sub commands
             switch (sub)
             {
                 // if /infchest add was executed
                 case "add":
                     {
-                        Context.Player.SetData<bool>("addinf", true);
+                        plrState.InfChestAdd = true;
                         return Success("Open a chest to make it infinite. Type /cancel to cancel.");
+                    }
+                // if /infchest addbulk was executed
+                case "addbulk":
+                    {
+                        plrState.InfChestAddBulk = true;
+                        return Success("Open chests to make them infinite, type /cancel to stop.");
                     }
                 // if /infchest del was executed
                 case "del":
                     {
-                        Context.Player.SetData<bool>("delinf", true);
+                        plrState.InfChestDelete = true;
                         return Success("Open a chest to delete it from Supplier. Type /cancel to cancel.");
                     }
                 // if no sub command was executed, if it was invalid, or if they entered /infchest help
@@ -32,6 +47,7 @@ namespace Supplier
                     {
                         Info("Help commands for /infchest:");
                         Info("/infchest add - allows the user to create an infinite chest");
+                        Info("/infchest addbulk - allows the user to continuously create infinite chests until /cancel is used");
                         Info("/infchest del - deletes an infinite chest");
                         return Info("/infchest help - shows this help message");
                     }
@@ -44,16 +60,16 @@ namespace Supplier
         [Description("Cancels infinite chest actions.")]
         public IResult InfChest()
         {
-            // set all data to false and tell player if either selection action is enabled
-            if (Context.Player.GetData<bool>("addinf") || Context.Player.GetData<bool>("delinf"))
+            // set all data to false and tell player if a selection operation operation was enabled
+            var plrState = Context.Player.GetPlayerOperationState();
+            if (plrState.InfChestAdd || plrState.InfChestAddBulk || plrState.InfChestDelete)
             {
-                Context.Player.SetData<bool>("addinf", false);
-                Context.Player.SetData<bool>("delinf", false);
-                return Success("Cancelled.");
+                plrState.SetAllOperationStatesFalse();
+                return Success("Cancelled chest operation.");
 
             }
             // tell the player they weren't selecting anything
-            return Error("You weren't selecting anything, so nothing was cancelled");
+            return Error("You weren't selecting anything, so nothing was cancelled.");
 
         }
         #endregion
