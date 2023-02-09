@@ -47,7 +47,6 @@ namespace Supplier.Api
         }
         #endregion
 
-
         #region Retrieve Chest
         public async Task<InfiniteChest> RetrieveChest(int _x, int _y)
         {
@@ -61,7 +60,7 @@ namespace Supplier.Api
         #region Remove Chest
         public async void RemoveChest(int _x, int _y)
         {
-            StorageProvider.GetMongoCollection<InfiniteChest>("InfiniteChests").Find(x => x.X == _x && x.Y == _y && (x.World == WorldName || string.IsNullOrEmpty(x.World))).First().DeleteAsync();        
+            await StorageProvider.GetMongoCollection<InfiniteChest>("InfiniteChests").Find(x => x.X == _x && x.Y == _y && (x.World == WorldName || string.IsNullOrEmpty(x.World))).First().DeleteAsync();        
         }
         #endregion
     }

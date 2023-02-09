@@ -41,6 +41,11 @@ namespace Supplier
                         plrState.InfChestDelete = true;
                         return Success("Open a chest to delete it from Supplier. Type /cancel to cancel.");
                     }
+                case "delbulk":
+                    {
+                        plrState.InfChestDelBulk = true;
+                        return Success("Open chests to delete them from Supplier, type /cancel to stop.");
+                    }
                 // if no sub command was executed, if it was invalid, or if they entered /infchest help
                 case "help":
                 default:
@@ -49,6 +54,7 @@ namespace Supplier
                         Info("/infchest add - allows the user to create an infinite chest");
                         Info("/infchest addbulk - allows the user to continuously create infinite chests until /cancel is used");
                         Info("/infchest del - deletes an infinite chest");
+                        Info("/infchest delbulk - deletes infinite chests until /cancel is used");
                         return Info("/infchest help - shows this help message");
                     }
             }
@@ -62,7 +68,7 @@ namespace Supplier
         {
             // set all data to false and tell player if a selection operation operation was enabled
             var plrState = Context.Player.GetPlayerOperationState();
-            if (plrState.InfChestAdd || plrState.InfChestAddBulk || plrState.InfChestDelete)
+            if (plrState.InfChestAdd || plrState.InfChestAddBulk || plrState.InfChestDelete || plrState.InfChestDelBulk)
             {
                 plrState.SetAllOperationStatesFalse();
                 return Success("Cancelled chest operation.");

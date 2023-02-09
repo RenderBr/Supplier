@@ -146,7 +146,7 @@ namespace Supplier
             }
             #endregion
             #region Delete Inf Chest
-            else if (plrState.InfChestDelete)
+            else if (plrState.InfChestDelete || plrState.InfChestDelBulk)
             {
                 {
                     // retrieve opened chest
@@ -154,7 +154,12 @@ namespace Supplier
                     if (chest == null) // if it is somehow null, return
                         return;
 
-                    plrState.InfChestDelete = false; // set delinf to false, to prevent further accidental deletion
+                    // set addinf to false, unless bulk operation
+                    if (!plrState.InfChestDelBulk)
+                    {
+                        plrState.InfChestDelete = false;
+                    }
+
 
                     // check to see if the chest already exists
                     var entity = await IModel.GetAsync(GetRequest.Bson<InfiniteChest>(x => x.X == chest.x && x.Y == chest.y && x.World == core.WorldName));

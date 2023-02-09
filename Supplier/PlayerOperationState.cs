@@ -25,6 +25,17 @@ public class PlayerOperationState
         }
     }
 
+    private bool _infChestDelBulk;
+    public bool InfChestDelBulk
+    {
+        get => _infChestDelBulk;
+        set
+        {
+            if (value) SetAllOperationStatesFalse();
+            _infChestDelBulk = value;
+        }
+    }
+
     private bool _infChestDelete;
     public bool InfChestDelete
     {
