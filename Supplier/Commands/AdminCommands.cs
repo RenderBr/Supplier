@@ -57,8 +57,8 @@ namespace Supplier
                 default:
                     {
                         Info("Help commands for /infchest:");
-                        Info("/infchest add (seconds) - allows the user to create an infinite chest");
-                        Info("/infchest addbulk (seconds) - allows the user to continuously create infinite chests until /cancel is used");
+                        Info("/infchest add (ms) - allows the user to create an infinite chest");
+                        Info("/infchest addbulk (ms) - allows the user to continuously create infinite chests until /cancel is used");
                         Info("/infchest del - deletes an infinite chest");
                         Info("/infchest delbulk - deletes infinite chests until /cancel is used");
                         return Info("/infchest help - shows this help message");
