@@ -1,4 +1,3 @@
-
 namespace Supplier;
 public class PlayerOperationState
 {
@@ -52,5 +51,6 @@ public class PlayerOperationState
         _infChestAdd = false;
         _infChestAddBulk = false;
         _infChestDelete = false;
+        _infChestDelBulk = false;
     }
 }

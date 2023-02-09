@@ -10,12 +10,12 @@ namespace Supplier
         #region /infchest <subcmd> - manage infinite chests - tbc.admin
         [Command("infchest")]
         [Description("Command used to manage infinite chest.")]
-        public IResult InfChest(string sub = "")
+        public IResult InfChest(string sub = "", int arg = 0)
         {
             var plrState = Context.Player.GetPlayerOperationState();
 
             // inform player if command is being used while a state is already set
-            if (plrState.InfChestAdd || plrState.InfChestAddBulk || plrState.InfChestDelete && sub != "help")
+            if (plrState.InfChestAdd || plrState.InfChestAddBulk || (plrState.InfChestDelete && sub != "help"))
             {
                 Info("If an existing chest selection operation is currently unfulfilled, it will be overriden with the new request.");
             }
@@ -26,12 +26,18 @@ namespace Supplier
                 // if /infchest add was executed
                 case "add":
                     {
+                        // set the delay for the chest, if no args, will be set to zero (or no delay)
+                        Context.Player.SetData<int>("delay", arg);
+
                         plrState.InfChestAdd = true;
                         return Success("Open a chest to make it infinite. Type /cancel to cancel.");
                     }
                 // if /infchest addbulk was executed
                 case "addbulk":
                     {
+                        // set the delay for the chest, if no args, will be set to zero (or no delay)
+                        Context.Player.SetData<int>("delay", arg);
+
                         plrState.InfChestAddBulk = true;
                         return Success("Open chests to make them infinite, type /cancel to stop.");
                     }
@@ -51,8 +57,8 @@ namespace Supplier
                 default:
                     {
                         Info("Help commands for /infchest:");
-                        Info("/infchest add - allows the user to create an infinite chest");
-                        Info("/infchest addbulk - allows the user to continuously create infinite chests until /cancel is used");
+                        Info("/infchest add (seconds) - allows the user to create an infinite chest");
+                        Info("/infchest addbulk (seconds) - allows the user to continuously create infinite chests until /cancel is used");
                         Info("/infchest del - deletes an infinite chest");
                         Info("/infchest delbulk - deletes infinite chests until /cancel is used");
                         return Info("/infchest help - shows this help message");

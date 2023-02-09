@@ -9,6 +9,8 @@ namespace Supplier.Api
     {
         public SupplierApi()
         {
+            // this is done to see if a connection can even be made to auxiliary
+            // it will also force Auxiliary to auto-gen a config
             StorageProvider.GetMongoCollection<InfiniteChest>("InfiniteChests");
             Console.WriteLine("SupplierAPI has connected to the database successfully.");
         }
@@ -16,7 +18,7 @@ namespace Supplier.Api
         public string? WorldName { get; set; }
 
         #region Add Chest
-        public async void AddChest(Chest chest)
+        public async void AddChest(Chest chest, int delay)
         {
             // add the chest to our database, marking it as infinite
             await IModel.CreateAsync(CreateRequest.Bson<InfiniteChest>(x =>
@@ -27,6 +29,9 @@ namespace Supplier.Api
                 // retrieve chest coordinates
                 x.X = chest.x;
                 x.Y = chest.y;
+
+                // set the delay, will be in miliseconds
+                x.Delay = delay;
 
                 // assign chests world
                 x.World = WorldName;
@@ -60,7 +65,7 @@ namespace Supplier.Api
         #region Remove Chest
         public async void RemoveChest(int _x, int _y)
         {
-            await StorageProvider.GetMongoCollection<InfiniteChest>("InfiniteChests").Find(x => x.X == _x && x.Y == _y && (x.World == WorldName || string.IsNullOrEmpty(x.World))).First().DeleteAsync();        
+            await StorageProvider.GetMongoCollection<InfiniteChest>("InfiniteChests").Find(x => x.X == _x && x.Y == _y && (x.World == WorldName || string.IsNullOrEmpty(x.World))).First().DeleteAsync();
         }
         #endregion
     }

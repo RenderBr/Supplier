@@ -3,8 +3,8 @@ using CSF;
 using CSF.TShock;
 using MongoDB.Driver;
 using Supplier.Api;
-using Supplier.Models;
 using Supplier.Extensions;
+using Supplier.Models;
 using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
@@ -17,9 +17,9 @@ namespace Supplier
     {
         #region Plugin Metadata
         public override string Name => "Supplier";
-        public override string Description => "An infinite-chests successor, allows chests to be filled with items";
+        public override string Description => "An infinite-chests successor, allows chests to be re-filled with items";
         public override string Author => "Average";
-        public override Version Version => new Version(1, 1);
+        public override Version Version => new Version(1, 2);
         #endregion
         private readonly TSCommandFramework _fx;
 
@@ -76,6 +76,11 @@ namespace Supplier
             if (string.IsNullOrEmpty(entity.World))
                 entity.World = core.WorldName;
 
+            if (entity.Delay > 0) // <---- if the chest has a delay, wait for the delay to expire
+            {
+                await Task.Delay(entity.Delay);
+            }
+
             // loop through each item slot in the chest
             for (var i = 0; i < entity.Items.Count; i++)
             {
@@ -123,7 +128,7 @@ namespace Supplier
                 }
 
                 // check if chest already is infinite
-                var entity = await core.RetrieveChest(chest.x,chest.y);
+                var entity = await core.RetrieveChest(chest.x, chest.y);
 
                 //if already infinite,
                 if (entity != null) { player.SendErrorMessage("This chest is already infinite."); return; } // <---- inform the player and return
@@ -131,7 +136,13 @@ namespace Supplier
                 // make an attempt to add the chest
                 try
                 {
-                    core.AddChest(chest);
+                    int delay = 0;
+
+                    // set the delay
+                    if (player.GetData<int>("delay") != 0)
+                        delay = player.GetData<int>("delay");
+
+                    core.AddChest(chest, delay);
                 }
                 catch (Exception ex)  // inform the player if for some reason it doesn't work (and send error to console)
                 {
