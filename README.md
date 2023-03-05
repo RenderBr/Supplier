@@ -28,5 +28,5 @@ Supplier releases are already bundled with all of the dependencies required **HO
 | /infchest add (miliseconds)    |Adds the selected chest as an infinite chest | tbc.admin |
 | /infchest addbulk (miliseconds)    |Allows the user to continuously create infinite chests until /cancel is used | tbc.admin |
 | /infchest del    |Deletes the selected infinite chest and reverts it to normal | tbc.admin |
-| /infchest delbulk    |deletes infinite chests until /cancel is used | tbc.admin |
-| /cancel    |Cancel's the infchest selection | tbc.admin |
+| /infchest delbulk    |Deletes infinite chests until /cancel is used | tbc.admin |
+| /cancel    |Cancels the infchest selection | tbc.admin |
