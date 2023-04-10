@@ -77,10 +77,18 @@ namespace Supplier
                 entity.World = core.WorldName;
 
             if (entity.Delay > 0) // <---- if the chest has a delay, wait for the delay to expire
-            {
                 await Task.Delay(entity.Delay);
-            }
 
+            var ts = new Thread(() => RefillChest(entity, e.ID)); // <---- create a new thread to refill the chest
+            ts.Start(); // <---- start the thread
+
+            // tell the server that WE have handled this event, letting it know the server does not need to do anything further
+            e.Handled = true;
+        }
+        #endregion
+
+        private void RefillChest(InfiniteChest entity, int id)
+        {
             // loop through each item slot in the chest
             for (var i = 0; i < entity.Items.Count; i++)
             {
@@ -91,17 +99,13 @@ namespace Supplier
                 tempItem.prefix = (byte)entity.Items[i].prefixID;
 
                 // set the chest slot to our new temp item
-                chest.item[i] = tempItem;
+                Main.chest[id].item[i] = tempItem;
 
                 // send a packet to the user, updating the chest slot in real time
-                TSPlayer.All.SendData(PacketTypes.ChestItem, "", e.ID, i, tempItem.stack, tempItem.prefix, tempItem.type);
+                TSPlayer.All.SendData(PacketTypes.ChestItem, "", id, i, tempItem.stack, tempItem.prefix, tempItem.type);
 
             }
-
-            // tell the server that WE have handled this event, letting it know the server does not need to do anything further
-            e.Handled = true;
         }
-        #endregion
 
         #region Chest Open Event
         private async void OnChestOpen(object sender, ChestOpenEventArgs e) // called when a player opens a chest
