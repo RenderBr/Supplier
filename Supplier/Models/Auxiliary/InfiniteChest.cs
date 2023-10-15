@@ -1,18 +1,19 @@
 ﻿using Auxiliary;
+using Microsoft.Xna.Framework;
 
-namespace Supplier.Models
+namespace Supplier.Models.Auxiliary
 {
-    public class InfiniteChest : BsonModel
+    public class InfiniteChest : BsonModel, IInfiniteChest
     {
-        private int _index;
-        public int Index
+        private int _chestID;
+        public int ChestID
         {
             get
-              => _index;
+              => _chestID;
             set
             {
-                _ = this.SaveAsync(x => x.Index, value);
-                _index = value;
+                _ = this.SaveAsync(x => x.ChestID, value);
+                _chestID = value;
             }
         }
 
@@ -77,5 +78,8 @@ namespace Supplier.Models
             }
         }
 
+        Vector2 IInfiniteChest.RetrievePosition() => new Vector2(X,Y);
+
+        List<ChestItem> RetrieveItems() => Items;
     }
 }

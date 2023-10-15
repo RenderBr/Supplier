@@ -1,13 +1,17 @@
 ﻿using Auxiliary;
+using Auxiliary.Configuration;
 using CSF;
 using CSF.TShock;
 using MongoDB.Driver;
+using NuGet.Protocol.Plugins;
 using Supplier.Api;
 using Supplier.Extensions;
 using Supplier.Models;
+using Supplier.Models.Auxiliary;
 using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
+using TShockAPI.Hooks;
 using static TShockAPI.GetDataHandlers;
 
 namespace Supplier
@@ -19,7 +23,7 @@ namespace Supplier
         public override string Name => "Supplier";
         public override string Description => "An infinite-chests successor, allows chests to be re-filled with items";
         public override string Author => "Average";
-        public override Version Version => new Version(1, 2);
+        public override Version Version => new Version(1, 3);
         #endregion
         private readonly TSCommandFramework _fx;
 
@@ -36,26 +40,26 @@ namespace Supplier
 
         public async override void Initialize()
         {
-            // build command modules
-            await _fx.BuildModulesAsync(typeof(Supplier).Assembly);
-
             // initialize api
             core = new SupplierApi();
+
+            // load config
+            await core.ReloadConfig();
+
+            GeneralHooks.ReloadEvent += async (x) =>
+            {
+                await core.ReloadConfig();
+                x.Player.SendSuccessMessage("[Supplier] Reloaded configuration.");
+            };
+
+            // build command modules
+            await _fx.BuildModulesAsync(typeof(Supplier).Assembly);
 
             //register hooks
             ChestOpen += OnChestOpen;
             ChestItemChange += OnItemChange;
-            TerrariaApi.Server.ServerApi.Hooks.GameInitialize.Register(this, OnWorldLoad);
         }
 
-        #endregion
-
-        #region onWorldLoad
-        private void OnWorldLoad(EventArgs args)
-        {
-            //retrieve world name, send to api
-            core.WorldName = "" + Main.worldID;
-        }
         #endregion
 
         #region Chest Item Change Event
@@ -67,19 +71,19 @@ namespace Supplier
                 return;
 
             // attempt to retrieve the Infinite Chest from database, based on position and the world name
-            InfiniteChest? entity = await core.RetrieveChest(chest.x, chest.y);
+            IInfiniteChest? entity = await core.RetrieveChest(chest.x, chest.y);
             if (entity == null) // <---- this will occur when the chest is NOT an infinite chest, so return
                 return;
 
             // if the chest doesn't have a world assigned to it, assign the current world to it
             // (for migrating v1.0 -> 1.1, populates potentially missing data)
             if (string.IsNullOrEmpty(entity.World))
-                entity.World = core.WorldName;
+                entity.World = Main.worldName;
 
             if (entity.Delay > 0) // <---- if the chest has a delay, wait for the delay to expire
                 await Task.Delay(entity.Delay);
 
-            var ts = new Thread(() => RefillChest(entity, e.ID)); // <---- create a new thread to refill the chest
+            var ts = new Thread(() => RefillChest(entity.ChestID)); // <---- create a new thread to refill the chest
             ts.Start(); // <---- start the thread
 
             // tell the server that WE have handled this event, letting it know the server does not need to do anything further
@@ -87,22 +91,24 @@ namespace Supplier
         }
         #endregion
 
-        private void RefillChest(InfiniteChest entity, int id)
+        private async Task RefillChest(int chestID)
         {
+            List<ChestItem> items = await core.RetrieveChestItems(chestID);
             // loop through each item slot in the chest
-            for (var i = 0; i < entity.Items.Count; i++)
+            for (var i = 0; i < items.Count; i++)
             {
+                Console.WriteLine(i);
                 // create a tempItem based on the data WE have collected for each slot
                 Item tempItem = new Item();
-                tempItem.SetDefaults(entity.Items[i].type);
-                tempItem.stack = entity.Items[i].stack;
-                tempItem.prefix = (byte)entity.Items[i].prefixID;
+                tempItem.SetDefaults(items[i].type);
+                tempItem.stack = items[i].stack;
+                tempItem.prefix = (byte)items[i].prefixID;
 
                 // set the chest slot to our new temp item
-                Main.chest[id].item[i] = tempItem;
+                Main.chest[chestID].item[i] = tempItem;
 
                 // send a packet to the user, updating the chest slot in real time
-                TSPlayer.All.SendData(PacketTypes.ChestItem, "", id, i, tempItem.stack, tempItem.prefix, tempItem.type);
+                TSPlayer.All.SendData(PacketTypes.ChestItem, "", chestID, i, tempItem.stack, tempItem.prefix, tempItem.type);
 
             }
         }
@@ -146,11 +152,12 @@ namespace Supplier
                     if (player.GetData<int>("delay") != 0)
                         delay = player.GetData<int>("delay");
 
-                    core.AddChest(chest, delay);
+                    await core.AddChest(chest, delay);
+                    await RefillChest(Main.chest.ToList().IndexOf(chest));
                 }
                 catch (Exception ex)  // inform the player if for some reason it doesn't work (and send error to console)
                 {
-                    Console.WriteLine("[SUPPLIER] - SOMETHING WENT WRONG!", ConsoleColor.Red);
+                    Console.WriteLine("[Supplier] - SOMETHING WENT WRONG!", ConsoleColor.Red);
                     Console.WriteLine(ex);
                     player.SendErrorMessage("Something went wrong! Chest could not be made infinite!");
                     return;
@@ -171,13 +178,10 @@ namespace Supplier
 
                     // set addinf to false, unless bulk operation
                     if (!plrState.InfChestDelBulk)
-                    {
                         plrState.InfChestDelete = false;
-                    }
-
 
                     // check to see if the chest already exists
-                    var entity = await IModel.GetAsync(GetRequest.Bson<InfiniteChest>(x => x.X == chest.x && x.Y == chest.y && x.World == core.WorldName));
+                    var entity = await core.RetrieveChest(chest.x, chest.y);
 
                     // if it doesn't, tell the player
                     if (entity == null) { player.SendInfoMessage("This chest is not infinite already, are you selecting the correct chest?"); return; }
